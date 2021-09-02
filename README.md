@@ -1,3 +1,11 @@
+## 补充知识点：
+
+### 1.git操作相关
+
+- git commit -m "refactor:"	-> refactor表示修改了目录结构
+
+
+
 ## 一、知识点介绍
 
 <img src="C:\Users\89404\AppData\Roaming\Typora\typora-user-images\image-20210902181257902.png" alt="image-20210902181257902" style="zoom:50%;" />
@@ -69,4 +77,28 @@
 > 2.使用脚手架新建项目
 >
 > koa2 -e Nodejs-Koa2模拟新浪微博  （-e表示使用ejs模板引擎）
+>
+> 3.cd Nodejs-Koa2模拟新浪微博 && npm install
+>
+> 4.连接远程仓库
+>
+> 5.npm i cross-env -D
+>
+> 6.配置package.json
+>
+> ```json
+> "scripts": {
+>     "start": "node bin/www",
+>     "dev": "cross-env NODE_ENV=dev nodemon bin/www",
+>     "prd": "cross-env NODE_ENV=production pm2 start bin/www",
+>     "test": "echo \"Error: no test specified\" && exit 1"
+>   }
+> ```
 
+### 3.介绍koa2-讲解代码结构
+
+
+
+<img src="D:\Users\89404\Pictures\temp\6.jpg" alt="6" style="zoom: 67%;" />
+
+<img src="D:\Users\89404\Pictures\temp\7.jpg" alt="7" style="zoom:67%;" />
