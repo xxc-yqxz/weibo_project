@@ -102,3 +102,70 @@
 <img src="D:\Users\89404\Pictures\temp\6.jpg" alt="6" style="zoom: 67%;" />
 
 <img src="D:\Users\89404\Pictures\temp\7.jpg" alt="7" style="zoom:67%;" />
+
+### 4.介绍koa2 - 演示路由
+
+```js
+- src/routes/users.js
+const router = require('koa-router')()
+
+router.prefix('/users')
+
+router.get('/', function (ctx, next) {
+  ctx.body = 'this is a users response!'
+})
+
+router.get('/bar', function (ctx, next) {
+  ctx.body = 'this is a users/bar response'
+})
+
+router.post('/login', async (ctx, next) => {
+  const { userName, password } = ctx.request.body
+  ctx.body = {
+    userName,
+    password
+  }
+})
+
+
+module.exports = router
+```
+
+```js
+- src/routes/index.js
+
+const router = require('koa-router')()
+
+router.get('/', async (ctx, next) => {
+  await ctx.render('index', {
+    title: 'Hello Koa 2!'
+  })
+})
+
+router.get('/json', async (ctx, next) => {
+  ctx.body = {
+    title: 'koa2 json'
+  }
+})
+
+router.get('/profile/:userName', async (ctx, next) => {
+  // ctx.params可以获取/:userName中的所有参数
+  const { userName } = ctx.params
+  ctx.body = {
+    title: 'this is profile page',
+    userName
+  }
+})
+
+router.get('/loadMore/:userName/:pageIndex', async (ctx, next) => {
+  const { userName, pageIndex } = ctx.params
+  ctx.body = {
+    title: 'this is loadMore api',
+    userName,
+    pageIndex
+  }
+})
+
+module.exports = router
+```
+
