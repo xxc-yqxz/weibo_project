@@ -3,6 +3,16 @@
 ### 1.git操作相关
 
 - git commit -m "refactor:"	-> refactor表示修改了目录结构
+- git commit -m "feat:路由的演示"  -> feat表示增加了新功能
+
+
+
+- git push origin master  -> 提交到某条分支
+
+
+
+- git log -> 查看提交日志
+- git show 日志编号  -> 查看提交内容
 
 
 
@@ -164,6 +174,63 @@ router.get('/loadMore/:userName/:pageIndex', async (ctx, next) => {
     userName,
     pageIndex
   }
+})
+
+module.exports = router
+```
+
+### 5.介绍ejs-变量和判断
+
+> 变量
+>
+> 判断和循环
+>
+> 引用组件
+
+```ejs
+- views/index.ejs
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+  <h1>
+    <%= title %>
+  </h1>
+  <p>EJS Welcome to <%= title %></p>
+  <!-- 若模板中使用到的变量没有传递，会报错，除非加locals -->
+  <p>
+    <%= locals.msg %>
+  </p>
+  <div>
+    <% if(isMe){ %>
+      <a href="#">@ 提到我的（3）</a>
+      <% } else { %>
+        <button>关注</button>
+        <% } %>
+  </div>
+  </p>
+</body>
+
+</html>
+```
+
+```js
+- routes/index.js
+const router = require('koa-router')()
+
+router.get('/', async (ctx, next) => {
+  await ctx.render('index', {
+    title: 'Hello Koa 2!',
+    msg: "你好",
+    isMe: false
+  })
 })
 
 module.exports = router

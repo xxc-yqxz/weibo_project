@@ -1,11 +1,26 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>EJS Welcome to <%= title %></p>
-  </body>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+  <h1>
+    <%= title %>
+  </h1>
+  <p>EJS Welcome to <%= title %>
+  </p>
+  <!-- 若模板中使用到的变量没有传递，会报错，除非加locals -->
+  <p>
+    <%= locals.msg %>
+  </p>
+  <%- include('widgets/user-info.ejs',{isMe}) %>
+    <hr>
+    <%- include('widgets/blog-list',{ blogList })%>
+</body>
+
 </html>
