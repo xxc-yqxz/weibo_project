@@ -953,3 +953,201 @@ function get(key) {
 module.exports = { set, get }
 ```
 
+### 19.cookie和session
+
+- cookie是从服务端获取的，获取到后，存储到浏览器端。之后请求，浏览器会用一些方法，让请求带上cookie，然后服务端根据传来的cookie来对应session来获取相应信息。
+
+```js
+let userId = req.cookie.userid
+req.session = SESSION_DATA[userId]
+```
+
+- session存储redis
+
+  原因1：操作系统会限制一个进程的最大可用内存。如果靠定义变量存储session。当访问用户多时，就会导致内存不断增大
+
+  原因2：启动多个进程时，进程之间的数据是相互隔离的。
+
+<img src="file:///D:\Users\89404\Documents\Tencent Files\1806366773\Image\C2C\6731967D6E5FF163B9CB2CABAA60A266.jpg" alt="img" style="zoom:50%;" />
+
+1. 将web server和redis拆分为两个单独的服务
+
+2. 双方都是独立的，都是可扩展的（例如都扩展成集群）
+
+
+
+- 为何session适用于redis？
+  1. session访问频繁，对性能要求极高
+  2. sessioni可不考虑断点丢失数据的问题（内存的硬伤）
+  3. session数据量不会太大（相比于mysql中存储的数据）
+- 为何网站数据和适合用redis？
+  1. 操作频率不是太高（相比于session操作）
+  2. 断电不能丢失，必须保留
+  3. 数据量太大，内存成本太高
+
+### 20.koa2配置session
+
+```txt
+npm i koa-redis koa-generic-session --save
+```
+
+
+
+```js
+- app.js
+
+const Koa = require('koa')
+const app = new Koa()
+const views = require('koa-views')
+const json = require('koa-json')
+const onerror = require('koa-onerror')
+const bodyparser = require('koa-bodyparser')
+const logger = require('koa-logger')
+const session = require('koa-generic-session')
+const redisStore = require('koa-redis')
+
+const { REDIS_CONF } = require('./conf/db')
+
+const index = require('./routes/index')
+const users = require('./routes/users')
+
+// error handler
+onerror(app)
+
+// middlewares
+app.use(bodyparser({
+  enableTypes: ['json', 'form', 'text']
+}))
+app.use(json())
+app.use(logger())
+app.use(require('koa-static')(__dirname + '/public'))
+
+app.use(views(__dirname + '/views', {
+  extension: 'ejs'
+}))
+
+// 配置需要在路由之前写
+// session 配置
+app.keys = ['xxc']  // 设置加密密匙
+app.use(session({
+  key: 'weibo.sid',   // cookie name 默认是koa.sid
+  prefix: 'weibo:sess:', // redis key 的前缀，默认是`koa:sess:`
+  cookie: {
+    path: '/',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 100   // ms
+  },
+  // ttl: 24 * 60 * 60 * 100,  // redis过期时间，此参数不写默认与cookie中的maxAge一致
+  store: redisStore({
+    all: `${REDIS_CONF.host}:${REDIS_CONF.port}`
+  })
+}))
+
+// logger
+app.use(async (ctx, next) => {
+  const start = new Date()
+  await next()
+  const ms = new Date() - start
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
+})
+
+// routes
+app.use(index.routes(), index.allowedMethods())
+app.use(users.routes(), users.allowedMethods())
+
+// error-handling
+app.on('error', (err, ctx) => {
+  console.error('server error', err, ctx)
+});
+
+module.exports = app
+```
+
+```js
+- routes/index.js
+
+const router = require('koa-router')()
+
+router.get('/', async (ctx, next) => {
+  await ctx.render('index', {
+    title: 'Hello Koa 2!',
+    msg: "你好",
+    isMe: false,
+    blogList: [
+      {
+        id: 1,
+        title: 'aaa'
+      },
+      {
+        id: 2,
+        title: 'aaa'
+      },
+      {
+        id: 3,
+        title: 'aaa'
+      }
+    ]
+  })
+})
+
+router.get('/json', async (ctx, next) => {
+  // 此处能有session是因为在app.js中配置了
+  // 此种配置下，session要使用后才能生效，并非访问一个随便的页面都会导致浏览器生成cookie、redis保存session。
+  const session = ctx.session
+  if (session.viewNum == null) {
+    session.viewNum = 0
+  }
+  session.viewNum++;
+  ctx.body = {
+    title: 'koa2 json',
+    viewNum: session.viewNum
+  }
+})
+
+router.get('/profile/:userName', async (ctx, next) => {
+  // ctx.params可以获取/:userName中的所有参数
+  const { userName } = ctx.params
+  ctx.body = {
+    title: 'this is profile page',
+    userName
+  }
+})
+
+router.get('/loadMore/:userName/:pageIndex', async (ctx, next) => {
+  const { userName, pageIndex } = ctx.params
+  ctx.body = {
+    title: 'this is loadMore api',
+    userName,
+    pageIndex
+  }
+})
+
+module.exports = router
+```
+
+
+
+### 21.介绍jest
+
+- 单元测试
+
+  单个功能或接口，给定输入，得到输出。看输出是否符合要求
+
+  需手动编写用例代码，然后统一执行
+
+  意义：能一次性执行所有单侧，短时间内验证所有功能是否正常
+
+- 使用jest
+
+  *.test.js 文件
+
+  常用的断言
+
+  测试http接口
+
+
+
+
+
+
+
