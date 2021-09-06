@@ -9,7 +9,7 @@
 
 - git push origin master  -> 提交到某条分支
 
-
+- git diff [文件名]   ->  查询文件修改情况
 
 - git log -> 查看提交日志	按Q退出
 - git show 日志编号  -> 查看提交内容
@@ -1144,6 +1144,49 @@ module.exports = router
   常用的断言
 
   测试http接口
+
+```txt
+npm i jest --save-dev
+```
+
+```json
+- package.json
+
+"scripts": {
+    "dev": "cross-env NODE_ENV=dev nodemon bin/www",
+    "prd": "cross-env NODE_ENV=production pm2 start bin/www",
+    "test": "cross-env NODE_ENV=test jest --runInBand --forceExit --colors"		--> runInBand表示顺序执行
+    --> forceExit 表示强制退出  --> colors 表示分颜色输出
+},
+```
+
+```js
+- test/demo.test.js
+// 注意文件名及文件创建位置
+/**
+ * @description test demo
+ * @author xxc
+ */
+
+function sum(a, b) {
+    return a + b
+}
+
+// test函数是jest帮我们定义的
+test('10 + 20应该等于30', () => {
+    const res = sum(10, 20)
+    // expect(res).toBe(30)
+    expect(res).not.toBe(40)
+})
+```
+
+
+
+### 22.测试http请求
+
+```txt
+npm i supertest --save-dev
+```
 
 
 
