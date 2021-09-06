@@ -1315,3 +1315,256 @@ cnpm i pre-commit --save-dev
 
 
 
+- sequelize配置
+
+```js
+- src/conf/db.js
+
+/**
+ * @description 存储配置
+ * @author xxc
+ */
+const { isProd } = require('../utils/env.js')
+
+// 此处将REDIS_CONF单独抽出成一个文件的原因：为了适配各种环境下REDIS_CONF的变化
+let REDIS_CONF = {
+    port: 6379,
+    host: '127.0.0.1'
+}
+
+let MYSQL_CONF = {
+    host: 'localhost',
+    user: 'root',
+    password: 'XXC',
+    port: '3306',
+    database: 'koa2_weibo_db',
+}
+
+if (isProd) {
+    REDIS_CONF = {
+        // 线上的redis配置
+        port: 6379,
+        host: '127.0.0.1'
+    }
+    MYSQL_CONF = {
+        // 线上的mysql配置
+        host: 'localhost',
+        user: 'root',
+        password: 'XXC',
+        port: '3306',
+        database: 'koa2_weibo_db',
+    }
+}
+
+module.exports = {
+    REDIS_CONF,
+    MYSQL_CONF
+}
+```
+
+```js
+- src/db/seq.js
+
+/**
+ * @description sequelize 实例
+ * @author xxc
+ */
+
+const Sequelize = require('sequelize')
+const { MYSQL_CONF } = require('../conf/db')
+const { isProd, isTest } = require('../utils/env')
+
+const { host, user, password, database } = MYSQL_CONF
+const conf = {
+    host,
+    dialect: 'mysql'    // 声明操作哪个数据库
+}
+
+// 如果实在测试环境下，关闭sql语句打印
+if (isTest) {
+    conf.logging = () => { }
+}
+
+// 线上环境使用连接池
+if (isProd) {
+    conf.pool = {
+        max: 5,  // 连接池中最大的连接数量
+        min: 0,  // 连接池中最小的连接数量
+        idle: 10000  // 如果一个连接池 10s 之内没有被使用，则释放
+    }
+}
+
+const seq = new Sequelize(database, user, password, conf)
+
+module.exports = seq
+```
+
+```js
+- src/db/sync.js
+
+/**
+ * @description sequelize 同步数据库
+ * @author xxc
+ */
+
+const seq = require('./seq')
+
+require('./model')
+
+// 测试连接
+seq.authenticate().then(() => {
+    console.log('auth ok')
+}).catch(() => {
+    console.log('auth err')
+})
+
+// 执行同步
+// force:true -> 表示强制执行。如果数据库中有这个表，则删除后再创建。(重新建表)
+seq.sync({ force: true }).then(() => {
+    console.log('sync ok')
+    process.exit()
+})
+```
+
+### 24.完善开发环境-debug
+
+- 使用inspect进行debug
+
+> 一般在路由中写debugger，而不在app.js中写
+
+1. 配置：
+
+```json
+"scripts": {
+    "dev": "cross-env NODE_ENV=dev nodemon --inspect=9229 bin/www",		--inspect配置端口
+},
+```
+
+2. 在浏览器中输入 chrome://inspect/#devices 打开debugger窗口
+3. 在程序中想要进行调试的地方输入debugger。即可进行调试。
+
+### 25. 完善开发环境-404和错误页-模板
+
+首先在app.js中配置完以下代码：
+
+```js
+app.use(views(__dirname + '/views', {
+  extension: 'ejs'
+}))
+```
+
+
+
+> 此处ejs代码理解即可
+
+```ejs
+- src/views/404.ejs
+
+<%- include('layout/header', { title: '微博 - 404', isNav: true })%>
+
+<div class="container margin-top-20">
+    <div class="row">
+        <!-- 左侧 -->
+        <div class="col-8">
+            <h4 class="margin-bottom-20 padding-bottom-10 border-bottom">404</h4>
+            <p>该网页未找到，请<a href="/">返回首页</a></p>
+        </div>
+    </div>
+</div>
+
+<%- include('layout/footer')%>
+```
+
+```ejs
+- src/views/layout/header.ejs
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title><%= title%></title>
+
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+
+    <% if (locals.list) { %>
+    <%# 有微博列表，以及右侧面板 %>
+    <link href="/css/list.css" rel="stylesheet">
+    <link href="/css/right.css" rel="stylesheet">
+    <% } %>
+
+    <% if (locals.isNarrow) { %>
+    <%# 窄模式，登录和注册 %>
+    <style>
+        body {
+            width: 400px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+    </style>
+    <% } %>
+
+    <% if (locals.isNav) { %>
+    <%# 有导航%>
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <% } %>
+
+    <!-- jquery 要首先引入-->
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <!-- 封装的 ajax -->
+    <script src="/javascripts/my-ajax.js"></script>
+
+    <% if (locals.isInputBlog) { %>
+    <%# 有发布微博的功能，需要 at.js https://github.com/ichord/At.js %>
+    <link href="/css/jquery.atwho.css" rel="stylesheet">
+    <script src="/javascripts/jquery.caret.js"></script>
+    <script src="/javascripts/jquery.atwho.js"></script>
+    <% } %>
+</head>
+<body>
+
+    <% if (locals.isNav) { %>
+    <%# 有导航%>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="/">慕课微博</a>
+        <ul class="navbar-nav mr-auto" style="flex-direction: row;">
+            <li class="nav-item">
+                <a class="nav-link" href="/">
+                    <i class="fa fa-home"></i>
+                    首页
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/profile">
+                    <i class="fa fa-user"></i>
+                    我的空间
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/square">
+                    <i class="fa fa-group"></i>
+                    广场
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/setting">
+                    <i class="fa fa-gear"></i>
+                    设置
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <% } %>
+```
+
+```ejs
+- src/views/layout/footer.ejs
+	<script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.0/js/bootstrap.min.js"></script>
+    <script src="/javascripts/query-object.js"></script>
+</body>
+</html>
+```
+
