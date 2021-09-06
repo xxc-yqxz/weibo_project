@@ -1,0 +1,21 @@
+{
+    "parser": "babel-eslint",
+    "env": {
+        "es6": true,
+        "commonjs": true,
+        "node": true
+    },
+    "rules": {
+        "quotes": [
+            "error",
+            "single",
+            {
+                "allowTemplateLiterals": true
+            }
+        ],
+        "semi": [
+            "error",
+            "never"
+        ]
+    }
+}

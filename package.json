@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=dev nodemon bin/www",
     "prd": "cross-env NODE_ENV=production pm2 start bin/www",
+    "lint": "eslint --ext .js ./src",
     "test": "cross-env NODE_ENV=test jest --runInBand --forceExit --colors"
   },
   "dependencies": {
@@ -26,9 +27,15 @@
     "sequelize": "^6.6.5"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
     "jest": "^27.1.0",
     "nodemon": "^1.19.1",
+    "pre-commit": "^1.2.2",
     "supertest": "^6.1.6"
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }

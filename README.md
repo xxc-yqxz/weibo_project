@@ -1188,9 +1188,130 @@ test('10 + 20应该等于30', () => {
 npm i supertest --save-dev
 ```
 
+```JS
+- test/server.js
+
+/**
+ * @description jest server
+ * @author xxc
+ */
+
+const request = require('supertest')
+const server = require('../src/app').callback()
+
+module.exports = request(server)
+```
+
+```js
+- test/json.test.js
+
+/**
+ * @description json test
+ * @author xxc
+ */
+
+const server = require('./server')
+
+test('json 接口返回数据格式正确', async () => {
+    // 测试get请求
+    // const response = await server.get('/json')
+    // expect(response.body).toEqual({      // toEqual 判断对象数据是否一样
+    //     title: 'koa2 json'
+    // })
+    // expect(response.body.title).toBe('koa2 json')
+
+    // 测试post请求
+    // const res = await (await server.post('/login')).send({
+    //     userName: "zhangsan",
+    //     password: '123'
+    // })
+})
+```
 
 
 
+### 23.完善开发环境-eslint与sequelize配置
+
+- eslint
+
+  ```txt
+  cnpm i eslint babel-eslint --save-dev
+  ```
+
+  1. eslint基础配置
+
+  ![image-20210906145025250](C:\Users\89404\AppData\Roaming\Typora\typora-user-images\image-20210906145025250.png)
+
+> .eslintignore：eslint忽略哪些文件
+>
+> .eslintrc.json：eslint配置文件
+
+```json
+- .eslintignore
+
+node_modules
+test
+src/public
+```
+
+```json
+- .eslintrc.json
+
+{
+    "parser": "babel-eslint",	->插件
+    "env": {			->环境配置
+        "es6": true,
+        "commonjs": true,
+        "node": true
+    },
+    "rules": {
+        "indent": [		-> 换行缩进4个空格，否则报错
+            "error",
+            4
+        ],
+        "quotes": [		-> 单引号，否则报错
+            "error",
+            "single",
+            {
+                "allowTemplateLiterals": true	-> 允许模板字符串
+            }
+        ],
+        "semi": [		-> 用分号，报错
+            "error",
+            "never"
+        ]
+    }
+}
+```
+
+```json
+- package.json
+
+"scripts": {
+    "dev": "cross-env NODE_ENV=dev nodemon bin/www",
+    "prd": "cross-env NODE_ENV=production pm2 start bin/www",
+    "lint": "eslint --ext .js ./src",		-> 对src文件下的js文件进行eslint语法检查
+    "test": "cross-env NODE_ENV=test jest --runInBand --forceExit --colors"
+},
+```
+
+> 当eslint检验出错时，要使文件中出现相关错误提示，需要开启以下配置
+>
+> <img src="D:\Users\89404\Pictures\temp\11.jpg" alt="11" style="zoom:67%;" />
+
+2. 实现提交之前检验eslint规范
+
+```txt
+cnpm i pre-commit --save-dev
+```
+
+```json
+- package.json
+
+  "pre-commit": [
+    "lint"		--> 此处的lint未scripts中的lint。表示提交之前要执行一次npm run lint
+  ]
+```
 
 
 
