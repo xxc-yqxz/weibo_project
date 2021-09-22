@@ -1,7 +1,7 @@
 const router = require('koa-router')()
+const { loginRedirect, loginCheck } = require('../middlewares/loginCheck')
 
-router.get('/', async (ctx, next) => {
-  console.log('before debugger')
+router.get('/', loginRedirect, async (ctx, next) => {
   await ctx.render('index', {
     title: 'Hello Koa 2!',
     msg: '你好',
@@ -23,7 +23,7 @@ router.get('/', async (ctx, next) => {
   })
 })
 
-router.get('/json', async (ctx, next) => {
+router.get('/json', loginCheck, async (ctx, next) => {
   // 此处能有session是因为在app.js中配置了
   // 此种配置下，session要使用后才能生效，并非访问一个随便的页面都会导致浏览器生成cookie、redis保存session。
   // const session = ctx.session
