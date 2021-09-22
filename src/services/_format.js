@@ -32,7 +32,7 @@ function formatUser(list) {
     }
 
     // 单个对象
-    return _formatUserPicture(result)
+    return _formatUserPicture(list)
 }
 
 
