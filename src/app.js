@@ -1,3 +1,4 @@
+const path = require('path')
 const Koa = require('koa')
 const app = new Koa()
 const views = require('koa-views')
@@ -7,6 +8,7 @@ const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const session = require('koa-generic-session')
 const redisStore = require('koa-redis')
+const koaStatic = require('koa-static')
 
 const { REDIS_CONF } = require('./conf/db')
 const { isProd } = require('./utils/env')
@@ -15,6 +17,7 @@ const { SESSION_SECRET_KEY } = require('./conf/secretKeys')
 // 路由
 const errorViewRouter = require('./routes/view/error')
 const index = require('./routes/index')
+const utilsAPIRouter = require('./routes/api/utils')
 const userViewRouter = require('./routes/view/user')
 const userAPIRouter = require('./routes/api/user')
 
@@ -33,7 +36,8 @@ app.use(bodyparser({
 }))
 app.use(json())
 app.use(logger())
-app.use(require('koa-static')(__dirname + '/public'))
+app.use(koaStatic(__dirname + '/public'))
+app.use(koaStatic(path.join(__dirname, '..', 'uploadFiles')))
 
 app.use(views(__dirname + '/views', {
   extension: 'ejs'
@@ -69,6 +73,7 @@ app.use(async (ctx, next) => {
 app.use(index.routes(), index.allowedMethods())
 app.use(userViewRouter.routes(), userViewRouter.allowedMethods())
 app.use(userAPIRouter.routes(), userAPIRouter.allowedMethods())
+app.use(utilsAPIRouter.routes(), utilsAPIRouter.allowedMethods())
 app.use(errorViewRouter.routes(), errorViewRouter.allowedMethods())  // 此处的路由要放在最后，因为其内部的404页面可以匹配所有路由
 
 // error-handling
