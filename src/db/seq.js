@@ -8,6 +8,7 @@ const { MYSQL_CONF } = require('../conf/db')
 const { isProd, isTest } = require('../utils/env')
 
 const { host, user, password, database } = MYSQL_CONF
+console.log(host, user, password, database)
 const conf = {
     host,
     dialect: 'mysql'    // 声明操作哪个数据库

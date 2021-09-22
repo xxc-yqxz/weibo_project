@@ -8,11 +8,10 @@
 
 
 - git push origin master  -> 提交到某条分支
-
 - git diff [文件名]   ->  查询文件修改情况
-
 - git log -> 查看提交日志	按Q退出
 - git show 日志编号  -> 查看提交内容
+- git push origin feature-login -> 提交并创建分支
 
 ### 2.js-doc注释
 
@@ -1567,4 +1566,310 @@ app.use(views(__dirname + '/views', {
 </body>
 </html>
 ```
+
+
+
+### 26.完善开发环境-404和错误页-路由
+
+在routes下新建两个文件夹
+
+![image-20210906164034709](C:\Users\89404\AppData\Roaming\Typora\typora-user-images\image-20210906164034709.png)
+
+其中，api是用来放置处理数据等的路由，而view是用来渲染页面的路由。
+
+
+
+```js
+- app.js
+const Koa = require('koa')
+const app = new Koa()
+const views = require('koa-views')
+const json = require('koa-json')
+const onerror = require('koa-onerror')
+const bodyparser = require('koa-bodyparser')
+const logger = require('koa-logger')
+const session = require('koa-generic-session')
+const redisStore = require('koa-redis')
+
+const { REDIS_CONF } = require('./conf/db')
+const {isProd} = require('./utils/env')
+
+// 路由
+const errorViewRouter = require('./routes/view/error')
+const index = require('./routes/index')
+const users = require('./routes/users')
+
+// error handler
+let onerrorConf = {}
+if (isProd) {
+// 此处的配置使得页面中发生错误时，能够让重定向到/error路由，并渲染错误页面
+  onerrorConf = {
+    redirect:'/error'
+  }
+}
+onerror(app,onerrorConf)
+
+
+
+......
+
+
+
+app.use(views(__dirname + '/views', {
+  extension: 'ejs'
+}))
+
+
+
+......
+
+
+
+// routes
+app.use(index.routes(), index.allowedMethods())
+app.use(users.routes(), users.allowedMethods())
+app.use(errorViewRouter.routes(),errorViewRouter.allowedMethods())  // 此处的路由要放在最后，因为其内部的404页面可以匹配所有路由
+
+// error-handling
+app.on('error', (err, ctx) => {
+  console.error('server error', err, ctx)
+})
+
+module.exports = app
+
+```
+
+```js
+- src/routes/view/error.js
+/**
+ * @description error 404 路由
+ * @author xxc
+ */
+const router = require('koa-router')()
+
+// error
+router.get('/error', async (ctx, next) => {
+    await ctx.render('error')   // 此处的error为ejs模板的名字
+})
+
+// 404
+router.get('*', async (ctx, next) => {
+    await ctx.render('404')
+})
+
+module.exports = router
+```
+
+### 27. jwt-加密用户信息
+
+> jwt - json web token
+>
+> 用户认证成功之后，server端返回一个加密的token给客户端
+>
+> 客户端后续每次请求都带token，以示当前的用户身份(cookie是浏览器帮我们带的，而token是需要我们自己去带)
+>
+> token为加密后的用户信息，由客户端存储。而cookie对应的用户信息由服务端的session存储。
+
+- 返回未加密用户数据
+
+```js
+// 模拟登录
+router.post('/login', async (ctx, next) => {
+  const { userName, password } = ctx.request.body
+
+  let userInfo
+  if (userName === 'zhangsan' && password === 'abc') {
+    // 登录成功，获取用户信息。模拟数据库
+    userInfo = {
+      userId: 1,
+      userName: 'zhangsan',
+      nickName: '张三',
+      gender: 1 // 男
+    }
+  }
+
+  if (userInfo === null) {
+    ctx.body = {
+      errno: -1,
+      msg: '登录失败'
+    }
+    return
+  }
+
+  ctx.body = {
+    errno: 0,
+    data: userInfo
+  }
+})
+```
+
+- 返回token加密后的用户数据
+
+1. 安装依赖
+
+```txt
+cnpm i koa-jwt jsonwebtoken --save
+```
+
+> jsonwebtoken用于加密，koa-jwt用于检验token。
+
+2. 使用
+
+```js
+- conf/constants
+// 设置密匙，用于加密、解密
+module.exports = {
+    SECRET: 'XXC'
+}
+```
+
+
+
+```js
+- app.js
+
+const Koa = require('koa')
+const app = new Koa()
+const views = require('koa-views')
+const json = require('koa-json')
+const onerror = require('koa-onerror')
+const bodyparser = require('koa-bodyparser')
+const logger = require('koa-logger')
+const jwtKoa = require('koa-jwt')
+
+const index = require('./routes/index')
+const users = require('./routes/users')
+
+const { SECRET } = require('./conf/constants')
+
+......
+
+// 检验客户端发送的请求是否携带token
+app.use(jwtKoa({
+  secret: SECRET	// 个人理解：检验时需要配置密匙是为了防止第三方不合法token。
+}).unless({
+  path: [/^\/users\/login/]   // 自定义哪些请求忽略 jwt 验证。除外的请求如果未带token会返回401错误
+}))
+
+......
+
+
+module.exports = app
+
+```
+
+
+
+```js
+- src/routes/user.js
+
+const router = require('koa-router')()
+const jwt = require('jsonwebtoken')
+const { SECRET } = require('../conf/constants')
+
+router.prefix('/users')
+
+// 模拟登录
+router.post('/login', async (ctx, next) => {
+  const { userName, password } = ctx.request.body
+
+  let userInfo
+  if (userName === 'zhangsan' && password === 'abc') {
+    // 登录成功，获取用户信息。模拟数据库
+    userInfo = {
+      userId: 1,
+      userName: 'zhangsan',
+      nickName: '张三',
+      gender: 1 // 男
+    }
+  }
+
+  // 加密 userInfo
+  let token
+  if (userInfo) {
+    token = jwt.sign(userInfo, SECRET, { expiresIn: '1h' }) //expiresIn表示过期时间
+  }
+
+  if (userInfo === null) {
+    ctx.body = {
+      errno: -1,
+      msg: '登录失败'
+    }
+    return
+  }
+
+  ctx.body = {
+    errno: 0,
+    data: token
+  }
+})
+
+module.exports = router
+```
+
+未携带token结果：
+
+![image-20210906180306325](C:\Users\89404\AppData\Roaming\Typora\typora-user-images\image-20210906180306325.png)
+
+### 28.jwt-获取用户信息
+
+1. 首先通过login接口，来获取服务端生成并返回给客户端的接口
+
+![12](D:\Users\89404\Pictures\temp\12.jpg)
+
+2. 访问时，通过设置请求头：Authorization：Bearer token值。来避免token校验失败及用于解析token获取用户数据
+3. 解密token
+
+```js
+const router = require('koa-router')()
+const jwt = require('jsonwebtoken')
+// util是nodejs内置的一个模块
+const util = require('util')
+// util.promisify将返回一个Promise
+const verify = util.promisify(jwt.verify)
+const { SECRET } = require('../conf/constants')
+
+router.prefix('/users')
+
+......
+
+// 获取用户信息
+router.get('/getUserInfo', async (ctx, next) => {
+  const token = ctx.header.authorization
+  try {
+    // 后端通过解析token获取到用户信息
+    const payload = await verify(token.split(' ')[1], SECRET)
+    ctx.body = {
+      errno: 0,
+      userInfo: payload
+    }
+  } catch (ex) {
+    ctx.body = {
+      errno: -1,
+      userInfo: 'verify token failed'
+    }
+  }
+})
+
+module.exports = router
+
+```
+
+此时，访问getUserInfo，便可以获得解密后返回的用户信息（加上了过期时间）
+
+![image-20210906182425529](C:\Users\89404\AppData\Roaming\Typora\typora-user-images\image-20210906182425529.png)
+
+- jwt vs session
+
+为了解决：登录&存储登录用户的信息
+
+jwt用户信息加密存储在客户端，不依赖cookie，可跨域
+
+session用户信息存储在服务端，依赖cookie，默认不可跨域
+
+一般情况下，两者都能满足。大型系统中两者可共用
+
+jwt更适合于服务节点较多，跨域比较多的系统
+
+session更适合于统一的web服务，server要严格管理用户信息（可以随时删除用户。而jwt用户信息未过期则无法删除，除非该密钥）
 

@@ -9,21 +9,23 @@ const session = require('koa-generic-session')
 const redisStore = require('koa-redis')
 
 const { REDIS_CONF } = require('./conf/db')
-const {isProd} = require('./utils/env')
+const { isProd } = require('./utils/env')
+const { SESSION_SECRET_KEY } = require('./conf/secretKeys')
 
 // 路由
 const errorViewRouter = require('./routes/view/error')
 const index = require('./routes/index')
-const users = require('./routes/users')
+const userViewRouter = require('./routes/view/user')
+const userAPIRouter = require('./routes/api/user')
 
 // error handler
 let onerrorConf = {}
 if (isProd) {
   onerrorConf = {
-    redirect:'/error'
+    redirect: '/error'
   }
 }
-onerror(app,onerrorConf)
+onerror(app, onerrorConf)
 
 // middlewares
 app.use(bodyparser({
@@ -37,11 +39,10 @@ app.use(views(__dirname + '/views', {
   extension: 'ejs'
 }))
 
-debugger
 
 // 配置需要在路由之前写
 // session 配置
-app.keys = ['xxc']  // 设置加密密匙
+app.keys = [SESSION_SECRET_KEY]  // 设置加密密匙
 app.use(session({
   key: 'weibo.sid',   // cookie name 默认是koa.sid
   prefix: 'weibo:sess:', // redis key 的前缀，默认是`koa:sess:`
@@ -66,8 +67,9 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
-app.use(errorViewRouter.routes(),errorViewRouter.allowedMethods())  // 此处的路由要放在最后，因为其内部的404页面可以匹配所有路由
+app.use(userViewRouter.routes(), userViewRouter.allowedMethods())
+app.use(userAPIRouter.routes(), userAPIRouter.allowedMethods())
+app.use(errorViewRouter.routes(), errorViewRouter.allowedMethods())  // 此处的路由要放在最后，因为其内部的404页面可以匹配所有路由
 
 // error-handling
 app.on('error', (err, ctx) => {
