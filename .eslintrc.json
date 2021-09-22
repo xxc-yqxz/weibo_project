@@ -13,9 +13,6 @@
                 "allowTemplateLiterals": true
             }
         ],
-        "semi": [
-            "error",
-            "never"
-        ]
+        "semi": 0
     }
 }
