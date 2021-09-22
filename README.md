@@ -13,6 +13,10 @@
 - git show 日志编号  -> 查看提交内容
 - git push origin feature-login -> 提交并创建分支
 
+
+
+- git stash -> 暂存修改
+
 ### 2.js-doc注释
 
 - 文件头部注释
