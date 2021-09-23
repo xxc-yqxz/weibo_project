@@ -9,7 +9,9 @@ const {
     register,
     login,
     deleteCurUser,
-    changeInfo
+    changeInfo,
+    changePassword,
+    logout
 } = require('../../controller/user')
 const userValidate = require('../../validator/user')
 const { genValidator } = require('../../middlewares/validator')
@@ -57,6 +59,20 @@ router.patch('/changeInfo', loginCheck, genValidator(userValidate), async (ctx, 
     const { nickName, city, picture } = ctx.request.body
     // controller
     ctx.body = await changeInfo(ctx, { nickName, city, picture })
+})
+
+// 修改密码
+router.patch('/changePassword', loginCheck, genValidator(userValidate), async (ctx, next) => {
+    const { password, newPassword } = ctx.request.body
+    const { userName } = ctx.session.userInfo   // 此处获取session中的数据并没有说规定要写在哪一层，既可以是路由层也可以是controller层
+    // controller
+    ctx.body = await changePassword({ userName, password, newPassword })
+})
+
+// 退出登录
+router.post('/logout', loginCheck, async (ctx, next) => {
+    // controller
+    ctx.body = await logout(ctx)
 })
 
 module.exports = router
