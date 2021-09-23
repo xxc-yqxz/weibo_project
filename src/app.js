@@ -17,9 +17,10 @@ const { SESSION_SECRET_KEY } = require('./conf/secretKeys')
 // 路由
 const blogViewRouter = require('./routes/view/blog')
 const errorViewRouter = require('./routes/view/error')
-const utilsAPIRouter = require('./routes/api/utils')
 const userViewRouter = require('./routes/view/user')
+const utilsAPIRouter = require('./routes/api/utils')
 const userAPIRouter = require('./routes/api/user')
+const homeAPIRouter = require('./routes/api/blog-home')
 
 // error handler
 let onerrorConf = {}
@@ -75,6 +76,7 @@ app.use(userViewRouter.routes(), userViewRouter.allowedMethods())
 app.use(userAPIRouter.routes(), userAPIRouter.allowedMethods())
 app.use(utilsAPIRouter.routes(), utilsAPIRouter.allowedMethods())
 app.use(errorViewRouter.routes(), errorViewRouter.allowedMethods())  // 此处的路由要放在最后，因为其内部的404页面可以匹配所有路由
+app.use(homeAPIRouter.routes(), homeAPIRouter.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
