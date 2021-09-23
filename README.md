@@ -16,6 +16,7 @@
 
 
 - git stash -> 暂存修改
+- git checkout -b feature-user-setting  -> 新建并切换到新分支
 
 ### 2.js-doc注释
 
