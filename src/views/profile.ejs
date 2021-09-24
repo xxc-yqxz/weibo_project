@@ -41,6 +41,13 @@
                     atCount: userData.atCount
                 });%>
             </div>
+                <!-- 粉丝 -->
+                <%- include('widgets/fans', {
+                    count: 0,
+                    userList: userData.fansData.list
+                })%>
+
+
 
             
 
