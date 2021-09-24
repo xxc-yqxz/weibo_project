@@ -23,6 +23,7 @@ function set(key, val, timeout = 60 * 60) {
         val = JSON.stringify(val)
     }
     redisClient.set(key, val)
+    // 设置过期时间
     redisClient.expire(key, timeout)
 }
 

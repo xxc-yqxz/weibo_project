@@ -22,6 +22,7 @@ const userViewRouter = require('./routes/view/user')
 const utilsAPIRouter = require('./routes/api/utils')
 const userAPIRouter = require('./routes/api/user')
 const homeAPIRouter = require('./routes/api/blog-home')
+const squareAPIRouter = require('./routes/api/blog-squre')
 
 // error handler
 let onerrorConf = {}
@@ -73,6 +74,7 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(profileAPIRouter.routes(), profileAPIRouter.allowedMethods())
+app.use(squareAPIRouter.routes(), squareAPIRouter.allowedMethods())
 app.use(blogViewRouter.routes(), blogViewRouter.allowedMethods())
 app.use(userViewRouter.routes(), userViewRouter.allowedMethods())
 app.use(userAPIRouter.routes(), userAPIRouter.allowedMethods())
