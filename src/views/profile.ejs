@@ -46,6 +46,11 @@
                     count: 0,
                     userList: userData.fansData.list
                 })%> 
+                <!-- 关注 -->
+                <%- include('widgets/followers',{
+                    count:userData.followersData.count,
+                    userList:userData.followersData.list
+                }) %>
         </div> <!-- 右侧结束 -->
     </div>
 </div>
