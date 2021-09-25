@@ -96,7 +96,7 @@ async function updateUser(
         updateData.picture = newPicture
     }
     if (newCity) {
-        updateData.nickName = newCity
+        updateData.city = newCity
     }
     // 拼接查询条件
     const whereData = {
