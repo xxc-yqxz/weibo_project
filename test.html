@@ -1,0 +1,11 @@
+<input id="inp1" type="text" value="1234567890">
+<input id="inp2" type="text" value="9876543210">
+<input type="button" οnclick="test()" value="确定">
+<script language="javascript">
+    function test() {
+        var o = document.getElementById("inp1")
+        var r = document.selection.createRange();
+        if (o.createTextRange().inRange(r))
+            alert(r.text);
+    }
+</script>

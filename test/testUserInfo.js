@@ -14,5 +14,5 @@ module.exports = {
 
     X_ID: 2,
     X_USER_NAME: 'zhangsan',
-    X_COOKIE: 'weibo.sid=5c9orwr0krAIQDtThWuuoSq7S3iWqq3Z; weibo.sid.sig=JpEIBwgZBwp12tCzT3qIvi4cwFY'
+    X_COOKIE: 'weibo.sid=5jU4r1g3pdU97szHZXrf4pvzQF2Xiw3Y; weibo.sid.sig=YglBRHLQJ74_emC8cSlpFP0iklw'
 }

@@ -34,7 +34,6 @@ test('XXC关注李四，应该成功', async () => {
 // 获取粉丝
 test('获取李四的粉丝，应该有XXC', async () => {
     const result = await getFans(L_ID)
-    console.log(result, 123456)
     const { count, userList } = result.data
     const hasUserName = userList.some(fanInfo => {
         return fanInfo.userName === X_USER_NAME
@@ -51,6 +50,18 @@ test('获取XXC的关注人，应该有李四', async () => {
         return followerInfo.userName === L_USER_NAME
     })
     expect(count > 0).toBe(true)
+    expect(hasUserName).toBe(true)
+})
+
+// 获取at 列表
+test('获取张三的 at 列表，应该有李四', async () => {
+    const res = await server
+        .get('/api/user/getAtList')
+        .set('cookie', X_COOKIE)
+    const atList = res.body
+    const hasUserName = atList.some(item => {
+        return item.indexOf(`-${L_USER_NAME}`) > 0
+    })
     expect(hasUserName).toBe(true)
 })
 
