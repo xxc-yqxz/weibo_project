@@ -37,7 +37,6 @@ async function getUsersByFollower(followerId) {
     let userList = result.rows.map(row => row.dataValues)
     userList = formatUser(userList)
 
-    console.log(userList, 144)
 
     return {
         count: result.count,
@@ -65,12 +64,10 @@ async function getFollowersByUser(userId) {
             }
         }
     })
-    console.log(result, 222)
     // result.count 总数
     // result.rows 查询结果，数组
 
     let userList = result.rows.map(row => row.dataValues)
-    console.log(userList, 333)
 
     userList = userList.map(item => {
         let user = item.user.dataValues
@@ -78,7 +75,6 @@ async function getFollowersByUser(userId) {
         return user
     })
 
-    console.log()
 
     return {
         count: result.count,

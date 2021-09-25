@@ -4,11 +4,11 @@
  */
 
 const { Blog, User, UserRelation } = require('../db/model/index')
-const { formatUser } = require('./_format')
+const { formatUser, formatBlog } = require('./_format')
 
 /**
  * 创建微博
- * @param {Object} param0 创建微博的数据{ userId, content, image }
+ * @param {Object} param0 创建微博的数据 { userId, content, image }
  */
 async function createBlog({ userId, content, image }) {
     const result = await Blog.create({
@@ -22,9 +22,10 @@ async function createBlog({ userId, content, image }) {
 /**
  * 根据用户获取微博列表
  * @param {Object} param0 查询参数 { userName, pageIndex = 0, pageSize = 10 }
- * @param {*} param1 
  */
-async function getBlogListByUser({ userName, pageIndex = 0, pageSize = 10 }) {
+async function getBlogListByUser(
+    { userName, pageIndex = 0, pageSize = 10 }
+) {
     // 拼接查询条件
     const userWhereOpts = {}
     if (userName) {
@@ -33,12 +34,11 @@ async function getBlogListByUser({ userName, pageIndex = 0, pageSize = 10 }) {
 
     // 执行查询
     const result = await Blog.findAndCountAll({
-        limit: pageSize,    // 每页多少条
-        offset: pageSize * pageIndex,    // 跳过多少条
+        limit: pageSize, // 每页多少条
+        offset: pageSize * pageIndex, // 跳过多少条
         order: [
             ['id', 'desc']
         ],
-        // 执行连表查询
         include: [
             {
                 model: User,
@@ -47,14 +47,14 @@ async function getBlogListByUser({ userName, pageIndex = 0, pageSize = 10 }) {
             }
         ]
     })
-    // result.count是总数，跟分页无关。
+    // result.count 总数，跟分页无关
     // result.rows 查询结果，数组
 
-    // 获取dataValues
+    // 获取 dataValues
     let blogList = result.rows.map(row => row.dataValues)
-
+    // 格式化
+    blogList = formatBlog(blogList)
     blogList = blogList.map(blogItem => {
-        // 将user.dataValues代替原本的user
         const user = blogItem.user.dataValues
         blogItem.user = formatUser(user)
         return blogItem
@@ -66,7 +66,51 @@ async function getBlogListByUser({ userName, pageIndex = 0, pageSize = 10 }) {
     }
 }
 
+/**
+ * 获取关注着的微博列表（首页）
+ * @param {Object} param0 查询条件 { userId, pageIndex = 0, pageSize = 10 }
+ */
+async function getFollowersBlogList({ userId, pageIndex = 0, pageSize = 5 }) {
+    const result = await Blog.findAndCountAll({
+        limit: pageSize, // 每页多少条
+        offset: pageSize * pageIndex, // 跳过多少条
+        order: [
+            ['id', 'desc']
+        ],
+        include: [
+            {
+                model: User,
+                attributes: ['userName', 'nickName', 'picture']
+            },
+            {
+                model: UserRelation,
+                attributes: ['userId', 'followerId'],
+                where: { userId }   // 根据userId,可以查找到该userId的所有行，而由于followerId对应Blog中的外键userId,就可以根据行中的followerId去找Blog中对应的数据
+            }
+        ]
+    })
+
+    console.log(result.rows, 111)
+
+
+    // 格式化数据
+    let blogList = result.rows.map(row => row.dataValues)
+    blogList = formatBlog(blogList)
+    blogList = blogList.map(blogItem => {
+        blogItem.user = formatUser(blogItem.user.dataValues)
+        return blogItem
+    })
+
+    return {
+        count: result.count,
+        blogList
+    }
+}
+
+
+
 module.exports = {
     createBlog,
-    getBlogListByUser
+    getBlogListByUser,
+    getFollowersBlogList
 }

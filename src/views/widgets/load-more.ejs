@@ -23,6 +23,8 @@
             // 更新 pageIndex
             PAGE_INDEX = data.pageIndex
 
+            console.log((PAGE_INDEX + 1) * PAGE_SIZE, COUNT)
+
             // 是否要隐藏“加载更多”
             if ((PAGE_INDEX + 1) * PAGE_SIZE >= COUNT) {
                 $btnLoadMore.hide()

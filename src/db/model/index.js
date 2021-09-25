@@ -29,7 +29,7 @@ User.hasMany(UserRelation, {
 // 此处创建外键会失败，因为上方已经使用了Blog.belongsTo,但是不会影响Blog和UserRelation的连表查询
 Blog.belongsTo(UserRelation, {
     foreignKey: 'userId',
-    targetkey: 'followerId'
+    targetKey: 'followerId'
 })
 
 module.exports = {

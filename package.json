@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "ajv": "^8.6.3",
+    "date-fns": "^2.1.0",
     "debug": "^4.1.1",
     "ejs": "^3.1.6",
     "formidable-upload-koa": "^1.0.1",
@@ -26,9 +27,9 @@
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
-    "mysql2": "^2.3.0",
+    "mysql2": "^1.7.0",
     "redis": "^3.1.2",
-    "sequelize": "^6.6.5",
+    "sequelize": "^5.18.0",
     "xss": "^1.0.9"
   },
   "devDependencies": {
