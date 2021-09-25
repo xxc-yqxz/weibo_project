@@ -13,6 +13,6 @@ module.exports = {
     L_COOKIE: 'weibo.sid=7fTXu8ZhRxQLMwPyqLb_91b_enWVtr23; weibo.sid.sig=fiS-WLn4MCib8NTgK8uGNXDToNk',
 
     X_ID: 2,
-    X_USER_NAME: 'xxc',
-    X_COOKIE: 'weibo.sid=RH_4kEQbTtsbXGNtlI3xv43SYVbopTQL; weibo.sid.sig=h8YlqC1Ht2fFvswssSyMUDLgZno;'
+    X_USER_NAME: 'zhangsan',
+    X_COOKIE: 'weibo.sid=5c9orwr0krAIQDtThWuuoSq7S3iWqq3Z; weibo.sid.sig=JpEIBwgZBwp12tCzT3qIvi4cwFY'
 }
