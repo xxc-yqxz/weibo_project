@@ -4,7 +4,7 @@
  */
 
 const { SuccessModel } = require('../model/ResModel')
-const { getAtRelationCount, getAtUserBlogList } = require('../services/at-relation')
+const { getAtRelationCount, getAtUserBlogList, updateAtRelation } = require('../services/at-relation')
 const { PAGE_SIZE } = require('../conf/constant')
 
 /**
@@ -42,7 +42,24 @@ async function getAtMeBlogList(userId, pageIndex = 0) {
     })
 }
 
+/**
+ * 标记为已读
+ * @param {number} userId userId
+ */
+async function markAsRead(userId) {
+    try {
+        await updateAtRelation(
+            { newIsRead: true },
+            { userId, isRead: false }
+        )
+    } catch (ex) {
+        console.error(ex)
+    }
+    // 不需要返回SuccessModel或ErrorModel，所以需要加trycatch
+}
+
 module.exports = {
     getAtMeCount,
-    getAtMeBlogList
+    getAtMeBlogList,
+    markAsRead
 }

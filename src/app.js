@@ -15,6 +15,7 @@ const { isProd } = require('./utils/env')
 const { SESSION_SECRET_KEY } = require('./conf/secretKeys')
 
 // 路由
+const atAPIRouter = require('./routes/api/blog-at')
 const profileAPIRouter = require('./routes/api/blog-profile')
 const blogViewRouter = require('./routes/view/blog')
 const errorViewRouter = require('./routes/view/error')
@@ -73,6 +74,7 @@ app.use(async (ctx, next) => {
 })
 
 // routes
+app.use(atAPIRouter.routes(), atAPIRouter.allowedMethods())
 app.use(profileAPIRouter.routes(), profileAPIRouter.allowedMethods())
 app.use(squareAPIRouter.routes(), squareAPIRouter.allowedMethods())
 app.use(homeAPIRouter.routes(), homeAPIRouter.allowedMethods())
