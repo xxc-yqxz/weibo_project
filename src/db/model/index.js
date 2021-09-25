@@ -6,6 +6,7 @@
 const User = require('./User')
 const Blog = require('./Blog')
 const UserRelation = require('./UserRelation')
+const AtRelation = require('./AtRelation')
 
 // 一个用户拥有多个微博，使得查询博客时可以顺带查出用户
 Blog.belongsTo(User, {
@@ -32,8 +33,13 @@ Blog.belongsTo(UserRelation, {
     targetKey: 'followerId'
 })
 
+Blog.hasMany(AtRelation, {
+    foreignKey: 'blogId'
+})
+
 module.exports = {
     User,
     Blog,
-    UserRelation
+    UserRelation,
+    AtRelation
 }
