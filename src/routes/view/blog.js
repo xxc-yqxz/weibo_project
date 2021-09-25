@@ -34,6 +34,7 @@ router.get('/', loginRedirect, async (ctx, next) => {
     // const atCountResult = await getAtMeCount(userId)
     // const { count: atCount } = atCountResult.data
 
+    console.log(pageIndex, pageSize, 111)
     await ctx.render('index', {
         userData: {
             userInfo,

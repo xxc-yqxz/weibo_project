@@ -3,7 +3,7 @@
  * @author xxc
  */
 
-const { DEFAULT_PICTURE } = require('../conf/constant.js')
+const { DEFAULT_PICTURE, REG_FOR_AT_WHO } = require('../conf/constant.js')
 const { timeFormat } = require('../utils/dt')
 
 /**
@@ -53,15 +53,19 @@ function _formatDBTime(obj) {
 function _formatContent(obj) {
     obj.contentFormat = obj.content
 
+
     // 格式化 @
     // from '哈喽 @张三 - zhangsan 你好'
     // to '哈喽 <a href="/profile/zhangsan">张三</a> 你好'
-    // obj.contentFormat = obj.contentFormat.replace(
-    //     REG_FOR_AT_WHO,
-    //     (matchStr, nickName, userName) => {
-    //         return `<a href="/profile/${userName}">@${nickName}</a>`
-    //     }
-    // )
+    obj.contentFormat = obj.contentFormat.replace(
+        REG_FOR_AT_WHO,
+        (matchStr, nickName, userName) => {
+            console.log(nickName, userName, 123456)
+            return `<a href="/profile/${userName}">@${nickName}</a>`
+        }
+    )
+
+    console.log(obj.contentFormat, 'xxc2')
 
     return obj
 }

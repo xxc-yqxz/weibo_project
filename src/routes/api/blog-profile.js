@@ -25,6 +25,7 @@ router.get('/loadMore/:userName/:pageIndex', loginCheck, async (ctx, next) => {
 router.post('/follow', loginCheck, async (ctx, next) => {
     const { id: myUserId } = ctx.session.userInfo
     const { userId: curUserId } = ctx.request.body
+    console.log(myUserId, curUserId, 'xxc')
     ctx.body = await follow(myUserId, curUserId)
 })
 

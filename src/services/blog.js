@@ -90,7 +90,6 @@ async function getFollowersBlogList({ userId, pageIndex = 0, pageSize = 5 }) {
         ]
     })
 
-    console.log(result.rows, 111)
 
 
     // 格式化数据
