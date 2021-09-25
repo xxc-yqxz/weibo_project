@@ -5,6 +5,7 @@
 
 const { User, UserRelation } = require('../db/model/index')
 const { formatUser } = require('./_format')
+const Sequelize = require('sequelize')
 
 /**
  * 获取关注该用户的用户列表，即该用户的粉丝
@@ -20,7 +21,11 @@ async function getUsersByFollower(followerId) {
             {
                 model: UserRelation,
                 where: {
-                    followerId
+                    followerId,
+                    userId: {
+                        // userId不等于followerId
+                        [Sequelize.Op.ne]: followerId
+                    }
                 }
             }
         ]
@@ -31,6 +36,8 @@ async function getUsersByFollower(followerId) {
     // 格式化
     let userList = result.rows.map(row => row.dataValues)
     userList = formatUser(userList)
+
+    console.log(userList, 144)
 
     return {
         count: result.count,
@@ -52,7 +59,10 @@ async function getFollowersByUser(userId) {
             attributes: ['id', 'userName', 'nickName', 'picture'],
         },
         where: {
-            userId
+            userId,
+            followerId: {
+                [Sequelize.Op.ne]: userId
+            }
         }
     })
     console.log(result, 222)

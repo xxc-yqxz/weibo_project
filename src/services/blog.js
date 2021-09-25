@@ -3,7 +3,7 @@
  * @author xxc
  */
 
-const { Blog, User } = require('../db/model/index')
+const { Blog, User, UserRelation } = require('../db/model/index')
 const { formatUser } = require('./_format')
 
 /**

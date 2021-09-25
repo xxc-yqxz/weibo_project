@@ -48,6 +48,8 @@ router.get('/profile/:userName', loginRedirect, async (ctx, next) => {
 
     // 获取粉丝
     const fansResult = await getFans(curUserInfo.id)
+    console.log(fansResult.data, 155)
+
     const { count: fansCount, userList: fansList } = fansResult.data
 
     // 获取关注人列表
@@ -56,8 +58,10 @@ router.get('/profile/:userName', loginRedirect, async (ctx, next) => {
 
     // 我是否关注了此人？
     const amIFollowed = fansList.some(item => {
-        return item.userName = myUserName
+        return item.userName === myUserName
     })
+
+    console.log(fansList, amIFollowed, 123)
 
 
     await ctx.render('profile', {

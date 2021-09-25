@@ -24,6 +24,14 @@ User.hasMany(UserRelation, {
     foreignKey: 'userId'
 })
 
+// 为Blog创建外键userId，对应UserRelation中的followerId
+// 没写targetKey时则默认关联id，如上面的那些
+// 此处创建外键会失败，因为上方已经使用了Blog.belongsTo,但是不会影响Blog和UserRelation的连表查询
+Blog.belongsTo(UserRelation, {
+    foreignKey: 'userId',
+    targetkey: 'followerId'
+})
+
 module.exports = {
     User,
     Blog,
